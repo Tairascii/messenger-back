@@ -9,13 +9,8 @@ import (
 )
 
 func (r *repository) ByEmail(ctx context.Context, email string) (domain.User, error) {
-	q := `
-		select id, email, password
-		from users
-		where email = $1;
-	`
 	var row userRow
-	if err := r.db.GetContext(ctx, &row, q); err != nil {
+	if err := r.db.GetContext(ctx, &row, byEmailSQL); err != nil {
 		return domain.User{}, err
 	}
 
@@ -35,3 +30,9 @@ func (row *userRow) toDomain() domain.User {
 		Password: row.Password,
 	}
 }
+
+const byEmailSQL = `
+		select id, email, password
+		from users
+		where email = $1;
+	`
