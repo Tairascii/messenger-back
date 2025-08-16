@@ -27,14 +27,14 @@ func main() {
 	ctx := context.Background()
 	cfg, err := sharedconfig.LoadConfig[config.Config]()
 	if err != nil {
-		logger.Log.Errorf("sharedconfig.LoadConfig: %w", err)
+		logger.Log.Errorf("sharedconfig.LoadConfig: %s", err.Error())
 		return
 	}
 
 	dbSettings := db.Settings{
 		Host:         cfg.DB.Host,
 		Port:         cfg.DB.Port,
-		User:         cfg.DB.Port,
+		User:         cfg.DB.User,
 		Password:     cfg.DB.Password,
 		DbName:       cfg.DB.DBName,
 		Schema:       cfg.DB.Shema,
@@ -45,12 +45,12 @@ func main() {
 
 	sqlxDb, err := db.Connect(dbSettings)
 	if err != nil {
-		logger.Log.Errorf("db.Connect: %w", err)
+		logger.Log.Errorf("db.Connect: %s", err.Error())
 		return
 	}
 	defer func(sqlxDb *sqlx.DB) {
 		if err := sqlxDb.Close(); err != nil {
-			logger.Log.Errorf("sqlxDb.Close: %w", err)
+			logger.Log.Errorf("sqlxDb.Close: %s", err.Error())
 		}
 	}(sqlxDb)
 
@@ -84,7 +84,7 @@ func main() {
 
 	go func() {
 		if err := srv.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
-			logger.Log.Errorf("srv.ListenAndServe: %w", err)
+			logger.Log.Errorf("srv.ListenAndServe: %s", err.Error())
 		}
 	}()
 
@@ -97,6 +97,6 @@ func main() {
 	logger.Log.Info("shutting down server")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Log.Errorf("srv.Shutdown: %w", err)
+		logger.Log.Errorf("srv.Shutdown: %s", err.Error())
 	}
 }

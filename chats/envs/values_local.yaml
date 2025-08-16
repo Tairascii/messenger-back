@@ -7,11 +7,11 @@ service:
 
 db:
   host: localhost
-  port: 5432
+  port: 6432
   user: postgres
   password: postgres
-  db_name: chats
+  db_name: chats-db
   schema: public
-  app_name: chats
+  app_name: chats-db
   max_idle_conns: 5
   max_open_conns: 5

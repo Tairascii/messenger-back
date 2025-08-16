@@ -1,5 +1,8 @@
-BIN_DIR=${CURDIR}/bin
+BIN_DIR=$(CURDIR)/bin
 PACKAGE=messenger/chats
+MIGRATIONS_DIR=./migrations
+LOCAL_PG_PORT=6432
+LOCAL_PG_DSN=postgres://postgres@localhost:$(LOCAL_PG_PORT)/chats-db?sslmode=disable
 
 bindir:
 	mkdir -p ${BIN_DIR}
@@ -11,9 +14,13 @@ bin-deps:
 	GOBIN=$(BIN_DIR) go install github.com/pressly/goose/v3/cmd/goose@v3.24.1 && \
 	GOBIN=$(BIN_DIR) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.4.0
 
+.PHONY: migrations-up
+migrations-up:
+	$(BIN_DIR)/goose -dir $(MIGRATIONS_DIR) postgres "$(LOCAL_PG_DSN)" up
+
 .PHONY: create-migration
 create-migration:
-	$(BIN_DIR)/goose -dir db/migrations create -s $(name) sql
+	$(BIN_DIR)/goose -dir ./migrations create -s $(NAME) sql
 
 .PHONY: lint
 lint:
@@ -21,5 +28,12 @@ lint:
 
 .PHONY: run
 run:
-	export CONFIG_FILE=${CURDIR}/envs/values_local.yaml && \
-	go run ${CURDIR}/cmd/chats/main.go
+	export CONFIG_FILE=$(CURDIR)/envs/values_local.yaml && \
+	go run $(CURDIR)/cmd/chats/main.go
+
+.PHONY: db-up
+db-up:
+	docker-compose up
+
+.PHONY: env-up
+env-up: db-up
