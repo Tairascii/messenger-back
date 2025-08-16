@@ -11,6 +11,6 @@ type ChatsRepo interface {
 	ByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Chat, error)
 }
 
-type Config struct{
+type Config struct {
 	ChatsRepo ChatsRepo
 }

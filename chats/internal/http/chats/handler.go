@@ -28,6 +28,10 @@ type Handler struct {
 	deleteChatUseCase DeleteChatUseCase
 }
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 func New(cfg HandlerConfig) *Handler {
 	return &Handler{
 		userChatsUseCase:  cfg.UserChatsUseCase,

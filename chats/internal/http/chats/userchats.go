@@ -9,6 +9,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// UserChats
+//
+//	@Summary		User's chats
+//	@Description	returns user's chats
+//	@Tags			Chats
+//	@Produce		json
+//	@Success		200	"ok"		chatsResponse
+//	@Failure		400	{object}	ErrorResponse
+//	@Failure		500	{object}	ErrorResponse
+//	@Router			/api/v1/chats [get]
 func (h *Handler) UserChats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

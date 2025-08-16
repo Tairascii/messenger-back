@@ -1,0 +1,53 @@
+basePath: /
+definitions:
+  chats.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Chats service
+  title: Chats
+  version: 1.0.0
+paths:
+  /api/v1/chats:
+    get:
+      description: returns user's chats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/chats.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/chats.ErrorResponse'
+      summary: User's chats
+      tags:
+      - Chats
+  /api/v1/chats/{chat_id}:
+    delete:
+      description: deletes user's chat but not completely
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/chats.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/chats.ErrorResponse'
+      summary: Delete chat
+      tags:
+      - Chats
+swagger: "2.0"

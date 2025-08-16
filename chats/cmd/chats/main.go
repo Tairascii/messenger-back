@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
+	"messenger/chats"
 	"messenger/chats/internal/config"
 	httphandler "messenger/chats/internal/http"
-	"messenger/chats/internal/http/chats"
+	chatshandler "messenger/chats/internal/http/chats"
 	chatsrepo "messenger/chats/internal/repository/chats"
 	chatsparticipantsrepo "messenger/chats/internal/repository/chatsparticipants"
 	"messenger/chats/internal/usecase/chats/deletechat"
@@ -20,8 +22,17 @@ import (
 	"messenger/shared/db"
 	"messenger/shared/logger"
 
+	"github.com/flowchartsman/swaggerui"
+
 	"github.com/jmoiron/sqlx"
 )
+
+//	@title			Chats
+//	@version		1.0.0
+//	@description	Chats service
+
+//	@host		localhost:8080
+//	@BasePath	/
 
 func main() {
 	ctx := context.Background()
@@ -65,7 +76,7 @@ func main() {
 		ChatsParticipantsRepo: chatsParticipantsRepo,
 	})
 
-	chatsHandlers := chats.New(chats.HandlerConfig{
+	chatsHandlers := chatshandler.New(chatshandler.HandlerConfig{
 		UserChatsUseCase:  userChatsUseCase,
 		DeleteChatUseCase: deleteChatUseCase,
 	})
@@ -79,11 +90,17 @@ func main() {
 		ReadTimeout:  cfg.Service.ReadTimeout,
 		WriteTimeout: cfg.Service.WriteTimeout,
 		IdleTimeout:  cfg.Service.IdleTimeout,
-		Handler:      handlers.InitHandlers(),
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/docs") {
+				http.StripPrefix("/docs", swaggerui.Handler(chats.Spec)).ServeHTTP(w, r)
+				return
+			}
+			handlers.InitHandlers()
+		}),
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
+		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			logger.Log.Errorf("srv.ListenAndServe: %s", err.Error())
 		}
 	}()

@@ -12,7 +12,8 @@ bin-deps:
 	$(info Installing binary dependencies...)
 
 	GOBIN=$(BIN_DIR) go install github.com/pressly/goose/v3/cmd/goose@v3.24.1 && \
-	GOBIN=$(BIN_DIR) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.4.0
+	GOBIN=$(BIN_DIR) go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.4.0 && \
+	GOBIN=$(BIN_DIR) go install github.com/swaggo/swag/cmd/swag@latest
 
 .PHONY: migrations-up
 migrations-up:
@@ -37,3 +38,8 @@ db-up:
 
 .PHONY: env-up
 env-up: db-up
+
+.PHONY: generate-swagger
+generate-swagger:
+	$(BIN_DIR)/swag fmt
+	$(BIN_DIR)/swag init -g /cmd/chats/main.go -o docs
