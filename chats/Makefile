@@ -15,5 +15,11 @@ bin-deps:
 create-migration:
 	$(BIN_DIR)/goose -dir db/migrations create -s $(name) sql
 
+.PHONY: lint
 lint:
 	$(BIN_DIR)/golangci-lint run
+
+.PHONY: run
+run:
+	export CONFIG_FILE=${CURDIR}/envs/values_local.yaml && \
+	go run ${CURDIR}/cmd/chats/main.go

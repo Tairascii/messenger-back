@@ -1,0 +1,17 @@
+service:
+  host: localhost
+  port: 8080
+  read_timeout: 3s
+  write_timeout: 3s
+  idle_timeout: 10s
+
+db:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  db_name: chats
+  schema: public
+  app_name: chats
+  max_idle_conns: 5
+  max_open_conns: 5

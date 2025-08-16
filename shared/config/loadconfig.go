@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -17,7 +18,7 @@ func LoadConfig[Config any]() (*Config, error) {
 	defer f.Close()
 
 	var config Config
-	if err := yaml.NewDecoder(f).Decode(config); err != nil {
+	if err := yaml.NewDecoder(f).Decode(&config); err != nil {
 		return nil, err
 	}
 
