@@ -1,6 +1,14 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrNotParticipant = errors.New("user is not chat participant")
+)
 
 type Chat struct {
 	ID                uuid.UUID

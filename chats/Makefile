@@ -16,4 +16,4 @@ create-migration:
 	$(BIN_DIR)/goose -dir db/migrations create -s $(name) sql
 
 lint:
-	golangci-lint run
+	$(BIN_DIR)/golangci-lint run

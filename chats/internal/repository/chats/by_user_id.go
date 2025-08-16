@@ -36,6 +36,6 @@ func (row *chatRow) toDomain() domain.Chat {
 const byUserIDSQL = `
 		select id, last_read_message_id
 		from chats ch 
-		join chats_participants chp on ch.id = chp.id
-		where user_id = $1;
+		join chats_participants chp on ch.id = chp.chat_id
+		where chp.user_id = $1;
 	`

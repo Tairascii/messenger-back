@@ -6,20 +6,13 @@ import (
 	"messenger/chats/internal/domain"
 	"messenger/shared/responsewriter"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 func (h *Handler) UserChats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userIDParam := chi.URLParam(r, "user_id")
-	userID, err := uuid.Parse(userIDParam)
-	if err != nil {
-		responsewriter.ErrorResponseWriter(w, err, http.StatusBadRequest)
-		return
-	}
 
-	chats, err := h.userChatsUseCase.UserChats(ctx, userID)
+	chats, err := h.userChatsUseCase.UserChats(ctx)
 	if err != nil {
 		responsewriter.ErrorResponseWriter(w, err, http.StatusInternalServerError)
 		return

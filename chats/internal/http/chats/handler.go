@@ -11,27 +11,35 @@ import (
 )
 
 type UserChatsUseCase interface {
-	UserChats(ctx context.Context, userID uuid.UUID) ([]domain.Chat, error)
+	UserChats(ctx context.Context) ([]domain.Chat, error)
+}
+
+type DeleteChatUseCase interface {
+	DeleteByID(ctx context.Context, id uuid.UUID) error
 }
 
 type HandlerConfig struct {
-	UserChatsUseCase UserChatsUseCase
+	UserChatsUseCase  UserChatsUseCase
+	DeleteChatUseCase DeleteChatUseCase
 }
 
 type Handler struct {
-	userChatsUseCase UserChatsUseCase
+	userChatsUseCase  UserChatsUseCase
+	deleteChatUseCase DeleteChatUseCase
 }
 
 func New(cfg HandlerConfig) *Handler {
 	return &Handler{
-		userChatsUseCase: cfg.UserChatsUseCase,
+		userChatsUseCase:  cfg.UserChatsUseCase,
+		deleteChatUseCase: cfg.DeleteChatUseCase,
 	}
 }
 
 func (h *Handler) Handlers() http.Handler {
 	rg := chi.NewRouter()
 	rg.Group(func(r chi.Router) {
-		r.Get("/{user_id}", h.UserChats)
+		r.Get("/", h.UserChats)
+		r.Delete("/{chat_id}", h.DeleteChat)
 	})
 
 	return rg

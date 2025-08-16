@@ -2,6 +2,7 @@ package http
 
 import (
 	"messenger/chats/internal/http/chats"
+	"messenger/shared/middleware"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -28,6 +29,7 @@ func (h *Handler) InitHandlers() *chi.Mux {
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 	}))
+	r.Use(middleware.ParseToken("test"))
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
 			v1.Mount("/chats", h.chatsHandlers.Handlers())
