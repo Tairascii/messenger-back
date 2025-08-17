@@ -16,8 +16,10 @@ import (
 	chatshandler "messenger/chats/internal/http/chats"
 	chatsrepo "messenger/chats/internal/repository/chats"
 	chatsparticipantsrepo "messenger/chats/internal/repository/chatsparticipants"
+	messagesrepo "messenger/chats/internal/repository/messages"
 	"messenger/chats/internal/usecase/chats/deletechat"
 	"messenger/chats/internal/usecase/chats/userchats"
+	"messenger/chats/internal/usecase/messages/addmessage"
 	sharedconfig "messenger/shared/config"
 	"messenger/shared/db"
 	"messenger/shared/logger"
@@ -67,6 +69,7 @@ func main() {
 
 	chatsRepo := chatsrepo.New(sqlxDb)
 	chatsParticipantsRepo := chatsparticipantsrepo.New(sqlxDb)
+	messagesRepo := messagesrepo.New(sqlxDb)
 
 	userChatsUseCase := userchats.New(&userchats.Config{
 		ChatsRepo: chatsRepo,
@@ -76,9 +79,15 @@ func main() {
 		ChatsParticipantsRepo: chatsParticipantsRepo,
 	})
 
+	addMessageUseCase := addmessage.New(&addmessage.Config{
+		ChatsParticipantsRepo: chatsParticipantsRepo,
+		MessagesRepo:          messagesRepo,
+	})
+
 	chatsHandlers := chatshandler.New(chatshandler.HandlerConfig{
 		UserChatsUseCase:  userChatsUseCase,
 		DeleteChatUseCase: deleteChatUseCase,
+		AddMessageUseCase: addMessageUseCase,
 	})
 
 	handlers := httphandler.New(&httphandler.Config{

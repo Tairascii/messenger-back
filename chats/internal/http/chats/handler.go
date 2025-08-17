@@ -18,14 +18,20 @@ type DeleteChatUseCase interface {
 	DeleteByID(ctx context.Context, id uuid.UUID) error
 }
 
+type AddMessageUseCase interface {
+	AddMessage(ctx context.Context, message domain.Message) error
+}
+
 type HandlerConfig struct {
 	UserChatsUseCase  UserChatsUseCase
 	DeleteChatUseCase DeleteChatUseCase
+	AddMessageUseCase AddMessageUseCase
 }
 
 type Handler struct {
 	userChatsUseCase  UserChatsUseCase
 	deleteChatUseCase DeleteChatUseCase
+	addMessageUseCase AddMessageUseCase
 }
 
 type ErrorResponse struct {
@@ -36,6 +42,7 @@ func New(cfg HandlerConfig) *Handler {
 	return &Handler{
 		userChatsUseCase:  cfg.UserChatsUseCase,
 		deleteChatUseCase: cfg.DeleteChatUseCase,
+		addMessageUseCase: cfg.AddMessageUseCase,
 	}
 }
 
