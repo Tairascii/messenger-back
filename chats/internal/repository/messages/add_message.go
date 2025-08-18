@@ -8,19 +8,20 @@ import (
 	"github.com/google/uuid"
 )
 
-func (r *repository) AddMessage(ctx context.Context, message domain.Message) error {
+func (r *repository) AddMessage(ctx context.Context, message domain.Message) (int64, error) {
+	var id int64
 	params := row{
 		Text:     message.Text,
 		IsEdited: message.IsEdited,
 		SenderID: message.SenderID,
 		ChatID:   message.ChatID,
 	}
-	_, err := r.db.ExecContext(ctx, addMessageSQL, params)
+	err := r.db.QueryRowContext(ctx, addMessageSQL, params).Scan(&id)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return id, nil
 }
 
 type row struct {
@@ -32,5 +33,5 @@ type row struct {
 
 const addMessageSQL = `
 		insert into messages (text, is_edited, sender_id, chat_id)
-		values (:text, :is_edited, :sender_id, :chat_id)
+		values (:text, :is_edited, :sender_id, :chat_id) returning id;
 		`

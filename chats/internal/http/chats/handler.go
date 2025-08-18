@@ -3,11 +3,13 @@ package chats
 import (
 	"context"
 	"net/http"
+	"sync"
 
 	"messenger/chats/internal/domain"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
 
 type UserChatsUseCase interface {
@@ -19,19 +21,27 @@ type DeleteChatUseCase interface {
 }
 
 type AddMessageUseCase interface {
-	AddMessage(ctx context.Context, message domain.Message) error
+	AddMessage(ctx context.Context, message domain.Message) (domain.Message, error)
+}
+
+type CanJoinUseCase interface {
+	CanJoin(ctx context.Context, chatID uuid.UUID) (uuid.UUID, error)
 }
 
 type HandlerConfig struct {
 	UserChatsUseCase  UserChatsUseCase
 	DeleteChatUseCase DeleteChatUseCase
 	AddMessageUseCase AddMessageUseCase
+	CanJoinUseCase    CanJoinUseCase
 }
 
 type Handler struct {
 	userChatsUseCase  UserChatsUseCase
 	deleteChatUseCase DeleteChatUseCase
 	addMessageUseCase AddMessageUseCase
+	canJoinUseCase    CanJoinUseCase
+	chatConnections   map[uuid.UUID]map[uuid.UUID]*websocket.Conn
+	mu                *sync.Mutex
 }
 
 type ErrorResponse struct {
@@ -43,6 +53,7 @@ func New(cfg HandlerConfig) *Handler {
 		userChatsUseCase:  cfg.UserChatsUseCase,
 		deleteChatUseCase: cfg.DeleteChatUseCase,
 		addMessageUseCase: cfg.AddMessageUseCase,
+		canJoinUseCase:    cfg.CanJoinUseCase,
 	}
 }
 

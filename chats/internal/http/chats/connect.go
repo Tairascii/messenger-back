@@ -1,7 +1,9 @@
 package chats
 
 import (
+	"encoding/json"
 	"net/http"
+	"time"
 
 	"messenger/chats/internal/domain"
 	"messenger/shared/logger"
@@ -21,6 +23,12 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := h.canJoinUseCase.CanJoin(ctx, chatID)
+	if err != nil {
+		responsewriter.ErrorResponseWriter(w, err, http.StatusForbidden)
+		return
+	}
+
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -36,22 +44,69 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	h.lockUser(chatID, userID, conn)
+	defer h.unlockUser(chatID, userID)
+
 	for {
-		_, msg, err := conn.ReadMessage()
+		_, rawMsg, err := conn.ReadMessage()
 		if err != nil {
 			logger.Log.Errorf("conn.ReadMessage: %s", err.Error())
 			return
 		}
 
+		var msg Message
+		if err = json.Unmarshal(rawMsg, &msg); err != nil {
+			logger.Log.Errorf("json.Unmarshal: %s", err.Error())
+			return
+		}
+
 		logger.Log.Infof("read message: %s\n", msg)
-		err = h.addMessageUseCase.AddMessage(ctx, domain.Message{
-			Text:     "", // todo take from msg
-			IsEdited: false,
-			ChatID:   chatID,
+		addedMsg, err := h.addMessageUseCase.AddMessage(ctx, domain.Message{
+			Text:      msg.Text, // todo take from msg
+			IsEdited:  false,
+			ChatID:    chatID,
+			CreatedAt: time.Now(),
 		})
 		if err != nil {
 			logger.Log.Errorf("addMessageUseCase.AddMessage: %s", err.Error())
 			return
 		}
+
+		resp, err := json.Marshal(Message(addedMsg))
+		if err != nil {
+			logger.Log.Errorf("json.Marshal: %s", err.Error())
+		}
+		
+		h.sendEveryone(chatID, resp)
 	}
+}
+
+func (h *Handler) lockUser(chatID, userID uuid.UUID, conn *websocket.Conn) {
+	h.mu.Lock()
+	h.chatConnections[chatID][userID] = conn
+	h.mu.Unlock()
+}
+
+func (h *Handler) unlockUser(chatID, userID uuid.UUID) {
+	h.mu.Lock()
+	delete(h.chatConnections[chatID], userID)
+	h.mu.Unlock()
+}
+
+func (h *Handler) sendEveryone(chatID uuid.UUID, data []byte) {
+	for userID, conn := range h.chatConnections[chatID] {
+		err := conn.WriteMessage(1, data)
+		if err != nil {
+			logger.Log.Errorf("conn.WriteMessage: chatID=%s, userID=%s", chatID, userID)
+		}
+	}
+}
+
+type Message struct {
+	ID        int64     `json:"id"`
+	Text      string    `json:"text"`
+	IsEdited  bool      `json:"is_edited"`
+	CreatedAt time.Time `json:"created_at"`
+	SenderID  uuid.UUID `json:"sender_id"`
+	ChatID    uuid.UUID `json:"chat_id"`
 }
