@@ -14,7 +14,7 @@ func (r *repository) Create(ctx context.Context, user domain.User) error {
 		Email:    user.Email,
 		Password: user.Password,
 	}
-	_, err := r.db.ExecContext(ctx, createSQL, params)
+	_, err := r.db.NamedExecContext(ctx, createSQL, params)
 	if err != nil {
 		return err
 	}

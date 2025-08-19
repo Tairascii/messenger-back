@@ -2,8 +2,9 @@ package signin
 
 import (
 	"context"
-	"messenger/user/internal/domain"
 	"time"
+
+	"messenger/user/internal/domain"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -12,7 +13,7 @@ import (
 func (u *UseCase) SignIn(ctx context.Context, req Request) (domain.AccessTokens, error) {
 	user, err := u.userRepo.ByEmail(ctx, req.Email)
 	if err != nil {
-		return domain.AccessTokens{}, nil
+		return domain.AccessTokens{}, err
 	}
 
 	if err = checkPassword(req.Password, user.Password); err != nil {

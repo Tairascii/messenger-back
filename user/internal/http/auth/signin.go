@@ -41,7 +41,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responsewriter.JSONResponseWriter(w, http.StatusCreated, mapDomainToResponse(tokens))
+	responsewriter.JSONResponseWriter(w, http.StatusOK, mapDomainToResponse(tokens))
 }
 
 type signInPayload struct {

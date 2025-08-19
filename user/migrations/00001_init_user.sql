@@ -4,7 +4,7 @@ create table users (
     id uuid primary key not null default gen_random_uuid(),
     email varchar(255) not null unique,
     password text not null,
-    created_at timestampt default now()
+    created_at timestamp default now()
 );
 -- +goose StatementEnd
 

@@ -2,7 +2,7 @@ BIN_DIR=$(CURDIR)/bin
 PACKAGE=messenger/user
 MIGRATIONS_DIR=./migrations
 LOCAL_PG_PORT=6432
-LOCAL_PG_DSN=postgres://postgres@localhost:$(LOCAL_PG_PORT)/user-db?sslmode=disable
+LOCAL_PG_DSN=postgres://postgres@localhost:$(LOCAL_PG_PORT)/users-db?sslmode=disable
 
 bindir:
 	mkdir -p ${BIN_DIR}

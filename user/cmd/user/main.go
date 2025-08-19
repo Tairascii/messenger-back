@@ -17,7 +17,7 @@ import (
 	"messenger/user/internal/repository/user"
 	"messenger/user/internal/usecase/auth/signin"
 	"messenger/user/internal/usecase/auth/signup"
-
+"messenger/shared/logger"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,14 +32,14 @@ func main() {
 	ctx := context.Background()
 	cfg, err := sharedconfig.LoadConfig[config.Config]()
 	if err != nil {
-		// log
+		logger.Log.Errorf("sharedconfig.LoadConfig: %s", err.Error())
 		return
 	}
 
 	dbSettings := db.Settings{
 		Host:         cfg.DB.Host,
 		Port:         cfg.DB.Port,
-		User:         cfg.DB.Port,
+		User:         cfg.DB.User,
 		Password:     cfg.DB.Password,
 		DbName:       cfg.DB.DBName,
 		Schema:       cfg.DB.Shema,
@@ -50,12 +50,12 @@ func main() {
 
 	sqlxDb, err := db.Connect(dbSettings)
 	if err != nil {
-		// log
+		logger.Log.Errorf("db.Connect: %s", err.Error())
 		return
 	}
 	defer func(sqlxDb *sqlx.DB) {
 		if err := sqlxDb.Close(); err != nil {
-			// log
+			logger.Log.Errorf("sqlxDb.Close: %s", err.Error())
 		}
 	}(sqlxDb)
 
@@ -87,20 +87,20 @@ func main() {
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
-			// log
+		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			logger.Log.Errorf("srv.ListenAndServe: %s", err.Error())
 		}
 	}()
 
-	// log
+	logger.Log.Infof("starting server on port %s", cfg.Service.Port)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	<-quit
 
-	// log
+	logger.Log.Info("shutting down server")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		// err
+		logger.Log.Errorf("srv.Shutdown: %s", err.Error())
 	}
 }
