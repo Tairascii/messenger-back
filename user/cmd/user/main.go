@@ -7,17 +7,21 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	sharedconfig "messenger/shared/config"
 	"messenger/shared/db"
+	"messenger/shared/logger"
+	"messenger/user"
 	"messenger/user/internal/config"
 	httphandler "messenger/user/internal/http"
 	"messenger/user/internal/http/auth"
-	"messenger/user/internal/repository/user"
+	userrepo "messenger/user/internal/repository/user"
 	"messenger/user/internal/usecase/auth/signin"
 	"messenger/user/internal/usecase/auth/signup"
-"messenger/shared/logger"
+
+	"github.com/flowchartsman/swaggerui"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -59,7 +63,7 @@ func main() {
 		}
 	}(sqlxDb)
 
-	userRepo := user.New(sqlxDb)
+	userRepo := userrepo.New(sqlxDb)
 
 	signInUseCase := signin.New(&signin.Config{
 		UserRepo: userRepo,
@@ -83,7 +87,13 @@ func main() {
 		ReadTimeout:  cfg.Service.ReadTimeout,
 		WriteTimeout: cfg.Service.WriteTimeout,
 		IdleTimeout:  cfg.Service.IdleTimeout,
-		Handler:      handlers.InitHandlers(),
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/docs") {
+				http.StripPrefix("/docs", swaggerui.Handler(user.Spec)).ServeHTTP(w, r)
+				return
+			}
+			handlers.InitHandlers()
+		}),
 	}
 
 	go func() {
