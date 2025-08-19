@@ -28,11 +28,16 @@ type CanJoinUseCase interface {
 	CanJoin(ctx context.Context, chatID uuid.UUID) (uuid.UUID, error)
 }
 
+type CreateChatUseCase interface {
+	CreateChat(ctx context.Context, user2 uuid.UUID) (uuid.UUID, error)
+}
+
 type HandlerConfig struct {
 	UserChatsUseCase  UserChatsUseCase
 	DeleteChatUseCase DeleteChatUseCase
 	AddMessageUseCase AddMessageUseCase
 	CanJoinUseCase    CanJoinUseCase
+	CreateChatUseCase CreateChatUseCase
 }
 
 type Handler struct {
@@ -40,6 +45,7 @@ type Handler struct {
 	deleteChatUseCase DeleteChatUseCase
 	addMessageUseCase AddMessageUseCase
 	canJoinUseCase    CanJoinUseCase
+	createChatUseCase CreateChatUseCase
 	chatConnections   map[uuid.UUID]map[uuid.UUID]*websocket.Conn
 	mu                *sync.Mutex
 }
@@ -54,6 +60,7 @@ func New(cfg HandlerConfig) *Handler {
 		deleteChatUseCase: cfg.DeleteChatUseCase,
 		addMessageUseCase: cfg.AddMessageUseCase,
 		canJoinUseCase:    cfg.CanJoinUseCase,
+		createChatUseCase: cfg.CreateChatUseCase,
 	}
 }
 
@@ -61,6 +68,7 @@ func (h *Handler) Handlers() http.Handler {
 	rg := chi.NewRouter()
 	rg.Group(func(r chi.Router) {
 		r.Get("/", h.UserChats)
+		r.Post("/", h.CreateChat)
 		r.Delete("/{chat_id}", h.DeleteChat)
 	})
 

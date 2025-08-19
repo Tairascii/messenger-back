@@ -17,6 +17,8 @@ import (
 	chatsrepo "messenger/chats/internal/repository/chats"
 	chatsparticipantsrepo "messenger/chats/internal/repository/chatsparticipants"
 	messagesrepo "messenger/chats/internal/repository/messages"
+	"messenger/chats/internal/usecase/chats/canjoin"
+	"messenger/chats/internal/usecase/chats/createchat"
 	"messenger/chats/internal/usecase/chats/deletechat"
 	"messenger/chats/internal/usecase/chats/userchats"
 	"messenger/chats/internal/usecase/messages/addmessage"
@@ -84,10 +86,20 @@ func main() {
 		MessagesRepo:          messagesRepo,
 	})
 
+	canJoinUseCase := canjoin.New(&canjoin.Config{
+		ChatsParticipantsRepo: chatsParticipantsRepo,
+	})
+
+	createChatUseCase := createchat.New(&createchat.Config{
+		ChatsRepo: chatsRepo,
+	})
+
 	chatsHandlers := chatshandler.New(chatshandler.HandlerConfig{
 		UserChatsUseCase:  userChatsUseCase,
 		DeleteChatUseCase: deleteChatUseCase,
 		AddMessageUseCase: addMessageUseCase,
+		CanJoinUseCase:    canJoinUseCase,
+		CreateChatUseCase: createChatUseCase,
 	})
 
 	handlers := httphandler.New(&httphandler.Config{
