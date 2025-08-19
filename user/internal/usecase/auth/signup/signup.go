@@ -15,8 +15,8 @@ func (u *UseCase) SignUp(ctx context.Context, req Request) error {
 	}
 
 	user := domain.User{
-		ID: uuid.New(),
-		Email: req.Email,
+		ID:       uuid.New(),
+		Email:    req.Email,
 		Password: passwordHash,
 	}
 	err = u.userRepo.Create(ctx, user)

@@ -1,0 +1,85 @@
+basePath: /
+definitions:
+  auth.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.signInPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  auth.signUpPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: User service
+  title: User
+  version: 1.0.0
+paths:
+  /api/v1/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: sign in user and returns access token
+      parameters:
+      - description: payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.signInPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Sign in user
+      tags:
+      - Auth
+  /api/v1/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: sign up user
+      parameters:
+      - description: payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.signUpPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Sign up user
+      tags:
+      - Auth
+swagger: "2.0"

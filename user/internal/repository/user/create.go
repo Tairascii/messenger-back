@@ -10,8 +10,8 @@ import (
 
 func (r *repository) Create(ctx context.Context, user domain.User) error {
 	params := createParams{
-		ID: user.ID,
-		Email: user.Email,
+		ID:       user.ID,
+		Email:    user.Email,
 		Password: user.Password,
 	}
 	_, err := r.db.ExecContext(ctx, createSQL, params)

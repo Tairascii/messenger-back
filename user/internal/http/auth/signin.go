@@ -9,6 +9,18 @@ import (
 	"messenger/user/internal/usecase/auth/signin"
 )
 
+// SignIn
+//
+//	@Summary		Sign in user
+//	@Description	sign in user and returns access token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		signInPayload	true	"payload"
+//	@Success		200		"ok"		singInResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/api/v1/auth/sign-in [post]
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var payload signUpPayload

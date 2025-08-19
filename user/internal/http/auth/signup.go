@@ -8,6 +8,18 @@ import (
 	"messenger/user/internal/usecase/auth/signup"
 )
 
+// SignUp
+//
+//	@Summary		Sign up user
+//	@Description	sign up user
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		signUpPayload	true	"payload"
+//	@Success		201		"ok"
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/api/v1/auth/sign-up [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var payload signUpPayload

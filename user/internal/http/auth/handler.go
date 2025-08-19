@@ -29,6 +29,10 @@ type Handler struct {
 	singUpUseCase SignUpUseCase
 }
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 func New(cfg HandlerConfig) *Handler {
 	return &Handler{
 		signInUseCase: cfg.SignInUseCase,

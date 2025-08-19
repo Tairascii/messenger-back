@@ -28,9 +28,9 @@ func (u *UseCase) SignIn(ctx context.Context, req Request) (domain.AccessTokens,
 	if err != nil {
 		return domain.AccessTokens{}, err
 	}
-	
+
 	return domain.AccessTokens{
-		AccessToken: accessToken,
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }

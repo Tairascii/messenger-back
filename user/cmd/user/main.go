@@ -21,6 +21,13 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+//	@title			User
+//	@version		1.0.0
+//	@description	User service
+
+//	@host		localhost:8080
+//	@BasePath	/
+
 func main() {
 	ctx := context.Background()
 	cfg, err := sharedconfig.LoadConfig[config.Config]()

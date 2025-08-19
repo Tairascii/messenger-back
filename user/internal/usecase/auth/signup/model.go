@@ -1,6 +1,6 @@
 package signup
 
 type Request struct {
-	Email string
+	Email    string
 	Password string
 }
