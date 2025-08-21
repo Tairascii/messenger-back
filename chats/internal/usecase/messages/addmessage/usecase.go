@@ -1,12 +1,13 @@
 package addmessage
 
 type UseCase struct {
-	messageRepo MessagesRepo
+	messageRepo           MessagesRepo
 	chatsParticipantsRepo ChatsParticipantsRepo
 }
 
 func New(cfg *Config) *UseCase {
 	return &UseCase{
-		messageRepo: cfg.MessagesRepo,
+		messageRepo:           cfg.MessagesRepo,
+		chatsParticipantsRepo: cfg.ChatsParticipantsRepo,
 	}
 }

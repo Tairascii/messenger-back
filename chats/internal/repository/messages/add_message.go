@@ -10,13 +10,11 @@ import (
 
 func (r *repository) AddMessage(ctx context.Context, message domain.Message) (int64, error) {
 	var id int64
-	params := row{
-		Text:     message.Text,
-		IsEdited: message.IsEdited,
-		SenderID: message.SenderID,
-		ChatID:   message.ChatID,
-	}
-	err := r.db.QueryRowContext(ctx, addMessageSQL, params).Scan(&id)
+	err := r.db.QueryRowContext(ctx, addMessageSQL,
+		message.Text,
+		message.IsEdited,
+		message.SenderID,
+		message.ChatID).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -33,5 +31,5 @@ type row struct {
 
 const addMessageSQL = `
 		insert into messages (text, is_edited, sender_id, chat_id)
-		values (:text, :is_edited, :sender_id, :chat_id) returning id;
+		values ($1, $2, $3, $4) returning id;
 		`

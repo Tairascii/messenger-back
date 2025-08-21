@@ -62,7 +62,7 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 
 		logger.Log.Infof("read message: %s\n", msg)
 		addedMsg, err := h.addMessageUseCase.AddMessage(ctx, domain.Message{
-			Text:      msg.Text, // todo take from msg
+			Text:      msg.Text,
 			IsEdited:  false,
 			ChatID:    chatID,
 			CreatedAt: time.Now(),
@@ -76,13 +76,16 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logger.Log.Errorf("json.Marshal: %s", err.Error())
 		}
-		
+
 		h.sendEveryone(chatID, resp)
 	}
 }
 
 func (h *Handler) lockUser(chatID, userID uuid.UUID, conn *websocket.Conn) {
 	h.mu.Lock()
+	if _, ok := h.chatConnections[chatID]; !ok {
+		h.chatConnections[chatID] = make(map[uuid.UUID]*websocket.Conn)
+	}
 	h.chatConnections[chatID][userID] = conn
 	h.mu.Unlock()
 }
@@ -90,6 +93,9 @@ func (h *Handler) lockUser(chatID, userID uuid.UUID, conn *websocket.Conn) {
 func (h *Handler) unlockUser(chatID, userID uuid.UUID) {
 	h.mu.Lock()
 	delete(h.chatConnections[chatID], userID)
+	if len(h.chatConnections[chatID]) == 0 {
+		delete(h.chatConnections, chatID)
+	}
 	h.mu.Unlock()
 }
 

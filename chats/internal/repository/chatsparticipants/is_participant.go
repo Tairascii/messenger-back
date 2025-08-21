@@ -8,7 +8,7 @@ import (
 
 func (r *repository) IsParticipant(ctx context.Context, userID, chatID uuid.UUID) (bool, error) {
 	var exists bool
-	if err := r.db.GetContext(ctx, &exists, isParticipantSQL); err != nil {
+	if err := r.db.GetContext(ctx, &exists, isParticipantSQL, chatID, userID); err != nil {
 		return false, err
 	}
 

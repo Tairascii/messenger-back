@@ -61,6 +61,8 @@ func New(cfg HandlerConfig) *Handler {
 		addMessageUseCase: cfg.AddMessageUseCase,
 		canJoinUseCase:    cfg.CanJoinUseCase,
 		createChatUseCase: cfg.CreateChatUseCase,
+		chatConnections:   make(map[uuid.UUID]map[uuid.UUID]*websocket.Conn),
+		mu:                &sync.Mutex{},
 	}
 }
 
@@ -70,6 +72,7 @@ func (h *Handler) Handlers() http.Handler {
 		r.Get("/", h.UserChats)
 		r.Post("/", h.CreateChat)
 		r.Delete("/{chat_id}", h.DeleteChat)
+		r.HandleFunc("/connect/{chat_id}", h.ConnectToChat)
 	})
 
 	return rg
