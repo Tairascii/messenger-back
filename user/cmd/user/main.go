@@ -92,7 +92,7 @@ func main() {
 				http.StripPrefix("/docs", swaggerui.Handler(user.Spec)).ServeHTTP(w, r)
 				return
 			}
-			handlers.InitHandlers()
+			handlers.InitHandlers().ServeHTTP(w, r)
 		}),
 	}
 

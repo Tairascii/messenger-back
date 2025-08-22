@@ -3,9 +3,10 @@ package middleware
 import (
 	"context"
 	"errors"
-	"messenger/shared/responsewriter"
 	"net/http"
 	"strings"
+
+	"messenger/shared/responsewriter"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -51,7 +52,7 @@ func ParseToken(secret string) func(next http.Handler) http.Handler {
 
 			claims, ok := token.Claims.(*Claims)
 			if !ok {
-				http.Error(w, "invalid token claims", http.StatusUnauthorized)
+				responsewriter.ErrorResponseWriter(w, ErrAuth, http.StatusUnauthorized)
 				return
 			}
 
