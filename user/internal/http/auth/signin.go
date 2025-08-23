@@ -50,8 +50,8 @@ type signInPayload struct {
 }
 
 type singInResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 func mapDomainToResponse(resp domain.AccessTokens) singInResponse {

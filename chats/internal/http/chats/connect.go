@@ -111,8 +111,8 @@ func (h *Handler) sendEveryone(chatID uuid.UUID, data []byte) {
 type Message struct {
 	ID        int64     `json:"id"`
 	Text      string    `json:"text"`
-	IsEdited  bool      `json:"is_edited"`
-	CreatedAt time.Time `json:"created_at"`
-	SenderID  uuid.UUID `json:"sender_id"`
-	ChatID    uuid.UUID `json:"chat_id"`
+	IsEdited  bool      `json:"isEdited"`
+	CreatedAt time.Time `json:"createdAt"`
+	SenderID  uuid.UUID `json:"senderID"`
+	ChatID    uuid.UUID `json:"chatID"`
 }

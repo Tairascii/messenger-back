@@ -2,6 +2,7 @@ package chats
 
 import (
 	"net/http"
+	"time"
 
 	"messenger/chats/internal/domain"
 	"messenger/shared/responsewriter"
@@ -32,8 +33,17 @@ func (h *Handler) UserChats(w http.ResponseWriter, r *http.Request) {
 }
 
 type Chat struct {
-	ID                uuid.UUID `json:"id"`
-	LastReadMessageID int64     `json:"last_read_message_id"`
+	ID                uuid.UUID   `json:"id"`
+	Picture           *string     `json:"picture,omitzero"`
+	Title             string      `json:"title"`
+	LastMessage       LastMessage `json:"lastMessage,omitzero"`
+	LastReadMessageID *int64      `json:"lastReadMessageID,omitzero"`
+}
+
+type LastMessage struct {
+	Text      *string    `json:"text"`
+	SenderID  *uuid.UUID `json:"senderID"`
+	CreatedAt *time.Time `json:"createdAt"`
 }
 
 type chatsResponse struct {
@@ -45,7 +55,14 @@ func mapDomainToResponse(resp []domain.Chat) chatsResponse {
 	for i, ch := range resp {
 		chats[i] = Chat{
 			ID:                ch.ID,
+			Picture:           ch.Picture,
+			Title:             ch.Title,
 			LastReadMessageID: ch.LastReadMessageID,
+			LastMessage: LastMessage{
+				Text:      ch.LastMessage.Text,
+				SenderID:  ch.LastMessage.SenderID,
+				CreatedAt: ch.LastMessage.CreatedAt,
+			},
 		}
 	}
 	return chatsResponse{

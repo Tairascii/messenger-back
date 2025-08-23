@@ -34,7 +34,7 @@ func (h *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
 }
 
 type createPayload struct {
-	UserID string `json:"user_id"`
+	UserID string `json:"userID"`
 }
 
 type createResponse struct {
