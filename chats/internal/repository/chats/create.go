@@ -22,7 +22,8 @@ func (r *repository) Create(ctx context.Context, chatID, user1, user2 uuid.UUID)
 		tx.Commit()
 	}()
 	params := createChatParams{
-		ID: chatID,
+		ID:    chatID,
+		Title: "some",
 	}
 	_, err = r.db.NamedExecContext(ctx, createChatSQL, params)
 	if err != nil {
@@ -43,12 +44,13 @@ func (r *repository) Create(ctx context.Context, chatID, user1, user2 uuid.UUID)
 }
 
 type createChatParams struct {
-	ID uuid.UUID `db:"id"`
+	ID    uuid.UUID `db:"id"`
+	Title string    `db:"title"`
 }
 
 const createChatSQL = `
-	insert into chats (id)
-	values (:id);
+	insert into chats (id, title)
+	values (:id, :title);
 `
 
 const addParticipantsSQL = `

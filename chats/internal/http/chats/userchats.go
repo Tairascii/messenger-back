@@ -29,7 +29,7 @@ func (h *Handler) UserChats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responsewriter.JSONResponseWriter(w, http.StatusCreated, mapDomainToResponse(chats))
+	responsewriter.JSONResponseWriter(w, http.StatusOK, mapDomainToResponse(chats))
 }
 
 type Chat struct {

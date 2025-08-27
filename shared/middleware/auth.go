@@ -28,8 +28,12 @@ func ParseToken(secret string) func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenRaw := r.Header.Get("Authorization")
 			if tokenRaw == "" {
-				responsewriter.ErrorResponseWriter(w, ErrAuth, http.StatusUnauthorized)
-				return
+				tokenRaw = r.URL.Query().Get("token")
+				if tokenRaw == "" {
+					responsewriter.ErrorResponseWriter(w, ErrAuth, http.StatusUnauthorized)
+					return
+				}
+				tokenRaw = "Bearer " + tokenRaw
 			}
 
 			tokenString := strings.TrimPrefix(tokenRaw, "Bearer ")
