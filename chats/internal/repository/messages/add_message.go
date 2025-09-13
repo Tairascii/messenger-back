@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"messenger/chats/internal/domain"
-
-	"github.com/google/uuid"
 )
 
 func (r *repository) AddMessage(ctx context.Context, message domain.Message) (int64, error) {
@@ -20,13 +18,6 @@ func (r *repository) AddMessage(ctx context.Context, message domain.Message) (in
 	}
 
 	return id, nil
-}
-
-type row struct {
-	Text     string    `db:"text"`
-	IsEdited bool      `db:"is_edited"`
-	SenderID uuid.UUID `db:"sender_id"`
-	ChatID   uuid.UUID `db:"chat_id"`
 }
 
 const addMessageSQL = `

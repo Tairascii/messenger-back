@@ -2,6 +2,7 @@ package http
 
 import (
 	"messenger/chats/internal/http/chats"
+	"messenger/chats/internal/http/messages"
 	"messenger/shared/middleware"
 
 	"github.com/go-chi/chi/v5"
@@ -9,16 +10,19 @@ import (
 )
 
 type Handler struct {
-	chatsHandlers *chats.Handler
+	chatsHandlers    *chats.Handler
+	messagesHandlers *messages.Handler
 }
 
 type Config struct {
-	ChatsHandlers *chats.Handler
+	ChatsHandlers    *chats.Handler
+	MessagesHandlers *messages.Handler
 }
 
 func New(cfg *Config) *Handler {
 	return &Handler{
-		chatsHandlers: cfg.ChatsHandlers,
+		chatsHandlers:    cfg.ChatsHandlers,
+		messagesHandlers: cfg.MessagesHandlers,
 	}
 }
 
@@ -33,6 +37,7 @@ func (h *Handler) InitHandlers() *chi.Mux {
 	r.Route("/api", func(api chi.Router) {
 		api.Route("/v1", func(v1 chi.Router) {
 			v1.Mount("/chats", h.chatsHandlers.Handlers())
+			v1.Mount("/messages", h.messagesHandlers.Handlers())
 		})
 	})
 
