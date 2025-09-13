@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"messenger/user/internal/domain"
-
-	"github.com/google/uuid"
 )
 
 func (r *repository) ByEmail(ctx context.Context, email string) (domain.User, error) {
@@ -15,20 +13,6 @@ func (r *repository) ByEmail(ctx context.Context, email string) (domain.User, er
 	}
 
 	return row.toDomain(), nil
-}
-
-type userRow struct {
-	ID       uuid.UUID `db:"id"`
-	Email    string    `db:"email"`
-	Password string    `db:"password"`
-}
-
-func (row *userRow) toDomain() domain.User {
-	return domain.User{
-		ID:       row.ID,
-		Email:    row.Email,
-		Password: row.Password,
-	}
 }
 
 const byEmailSQL = `

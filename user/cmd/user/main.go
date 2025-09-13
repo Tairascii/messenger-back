@@ -17,9 +17,11 @@ import (
 	"messenger/user/internal/config"
 	httphandler "messenger/user/internal/http"
 	"messenger/user/internal/http/auth"
+	"messenger/user/internal/http/profile"
 	userrepo "messenger/user/internal/repository/user"
 	"messenger/user/internal/usecase/auth/signin"
 	"messenger/user/internal/usecase/auth/signup"
+	"messenger/user/internal/usecase/profile/userprofile"
 
 	"github.com/flowchartsman/swaggerui"
 	"github.com/jmoiron/sqlx"
@@ -73,13 +75,22 @@ func main() {
 		UserRepo: userRepo,
 	})
 
+	userProfileUseCase := userprofile.New(&userprofile.Config{
+		UserRepo: userRepo,
+	})
+
 	authHandlers := auth.New(auth.HandlerConfig{
 		SignInUseCase: signInUseCase,
 		SignUpUseCase: signUpUseCase,
 	})
 
+	profileHandlers := profile.New(profile.HandlerConfig{
+		UserProfileUseCase: userProfileUseCase,
+	})
+
 	handlers := httphandler.New(&httphandler.Config{
-		AuthHandlers: authHandlers,
+		AuthHandlers:    authHandlers,
+		ProfileHandlers: profileHandlers,
 	})
 
 	srv := &http.Server{
