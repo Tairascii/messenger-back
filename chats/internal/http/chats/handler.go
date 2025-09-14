@@ -46,7 +46,7 @@ type Handler struct {
 	addMessageUseCase AddMessageUseCase
 	canJoinUseCase    CanJoinUseCase
 	createChatUseCase CreateChatUseCase
-	chatConnections   map[uuid.UUID]map[uuid.UUID]*websocket.Conn
+	chatConnections   map[uuid.UUID]map[uuid.UUID][]*websocket.Conn
 	mu                *sync.Mutex
 }
 
@@ -61,7 +61,7 @@ func New(cfg HandlerConfig) *Handler {
 		addMessageUseCase: cfg.AddMessageUseCase,
 		canJoinUseCase:    cfg.CanJoinUseCase,
 		createChatUseCase: cfg.CreateChatUseCase,
-		chatConnections:   make(map[uuid.UUID]map[uuid.UUID]*websocket.Conn),
+		chatConnections:   make(map[uuid.UUID]map[uuid.UUID][]*websocket.Conn),
 		mu:                &sync.Mutex{},
 	}
 }

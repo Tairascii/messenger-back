@@ -50,6 +50,6 @@ const byUserIDSQL = `
 		select ch.id, ch.picture, ch.title, ch.last_read_message_id, m.text, m.created_at, m.sender_id
 		from chats ch 
 		join chats_participants chp on ch.id = chp.chat_id
-		left join messages m on ch.last_read_message_id = m.id
+		left join messages m on ch.last_message_id = m.id
 		where chp.user_id = $1;
 	`

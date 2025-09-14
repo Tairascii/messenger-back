@@ -84,9 +84,12 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) lockUser(chatID, userID uuid.UUID, conn *websocket.Conn) {
 	h.mu.Lock()
 	if _, ok := h.chatConnections[chatID]; !ok {
-		h.chatConnections[chatID] = make(map[uuid.UUID]*websocket.Conn)
+		h.chatConnections[chatID] = make(map[uuid.UUID][]*websocket.Conn)
 	}
-	h.chatConnections[chatID][userID] = conn
+	if _, ok := h.chatConnections[chatID][userID]; !ok {
+		h.chatConnections[chatID][userID] = make([]*websocket.Conn, 0)
+	}
+	h.chatConnections[chatID][userID] = append(h.chatConnections[chatID][userID], conn)
 	h.mu.Unlock()
 }
 
@@ -100,10 +103,12 @@ func (h *Handler) unlockUser(chatID, userID uuid.UUID) {
 }
 
 func (h *Handler) sendEveryone(chatID uuid.UUID, data []byte) {
-	for userID, conn := range h.chatConnections[chatID] {
-		err := conn.WriteMessage(1, data)
-		if err != nil {
-			logger.Log.Errorf("conn.WriteMessage: chatID=%s, userID=%s", chatID, userID)
+	for userID, conns := range h.chatConnections[chatID] {
+		for _, conn := range conns {
+			err := conn.WriteMessage(1, data)
+			if err != nil {
+				logger.Log.Errorf("conn.WriteMessage: chatID=%s, userID=%s", chatID, userID)
+			}
 		}
 	}
 }
