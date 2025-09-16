@@ -44,10 +44,17 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	h.lockUser(chatID, userID, conn)
-	defer h.unlockUser(chatID, userID)
+	connID := uuid.New()
+
+	h.lockUser(userID, connID, conn)
+	defer h.unlockUser(userID, connID)
 
 	for {
+		usersToSend, err := h.chatUsersUseCase.ChatUsers(ctx, chatID)
+		if err != nil {
+			logger.Log.Errorf("chatUsersUseCase.ChatUsers: %s", err.Error())
+		}
+
 		_, rawMsg, err := conn.ReadMessage()
 		if err != nil {
 			logger.Log.Errorf("conn.ReadMessage: %s", err.Error())
@@ -77,37 +84,34 @@ func (h *Handler) ConnectToChat(w http.ResponseWriter, r *http.Request) {
 			logger.Log.Errorf("json.Marshal: %s", err.Error())
 		}
 
-		h.sendEveryone(chatID, resp)
+		h.sendEveryone(usersToSend, resp)
 	}
 }
 
-func (h *Handler) lockUser(chatID, userID uuid.UUID, conn *websocket.Conn) {
-	h.mu.Lock()
-	if _, ok := h.chatConnections[chatID]; !ok {
-		h.chatConnections[chatID] = make(map[uuid.UUID][]*websocket.Conn)
+func (h *Handler) lockUser(userID uuid.UUID, connID uuid.UUID, conn *websocket.Conn) {
+	h.connectMu.Lock()
+	if _, ok := h.chatConnections[userID]; !ok {
+		h.chatConnections[userID] = make(map[uuid.UUID]*websocket.Conn)
 	}
-	if _, ok := h.chatConnections[chatID][userID]; !ok {
-		h.chatConnections[chatID][userID] = make([]*websocket.Conn, 0)
-	}
-	h.chatConnections[chatID][userID] = append(h.chatConnections[chatID][userID], conn)
-	h.mu.Unlock()
+	h.chatConnections[userID][connID] = conn
+	h.connectMu.Unlock()
 }
 
-func (h *Handler) unlockUser(chatID, userID uuid.UUID) {
-	h.mu.Lock()
-	delete(h.chatConnections[chatID], userID)
-	if len(h.chatConnections[chatID]) == 0 {
-		delete(h.chatConnections, chatID)
+func (h *Handler) unlockUser(userID uuid.UUID, connID uuid.UUID) {
+	h.connectMu.Lock()
+	delete(h.chatConnections[userID], connID)
+	if len(h.chatConnections[userID]) == 0 {
+		delete(h.chatConnections, userID)
 	}
-	h.mu.Unlock()
+	h.connectMu.Unlock()
 }
 
-func (h *Handler) sendEveryone(chatID uuid.UUID, data []byte) {
-	for userID, conns := range h.chatConnections[chatID] {
-		for _, conn := range conns {
+func (h *Handler) sendEveryone(userIDs []uuid.UUID, data []byte) {
+	for _, userID := range userIDs {
+		for _, conn := range h.chatConnections[userID] {
 			err := conn.WriteMessage(1, data)
 			if err != nil {
-				logger.Log.Errorf("conn.WriteMessage: chatID=%s, userID=%s", chatID, userID)
+				logger.Log.Errorf("conn.WriteMessage: userID=%s, userID=%s", userID, userID)
 			}
 		}
 	}

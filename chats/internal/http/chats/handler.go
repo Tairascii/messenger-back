@@ -32,12 +32,17 @@ type CreateChatUseCase interface {
 	CreateChat(ctx context.Context, user2 uuid.UUID) (uuid.UUID, error)
 }
 
+type ChatUsersUseCase interface {
+	ChatUsers(ctx context.Context, chatID uuid.UUID) ([]uuid.UUID, error)
+}
+
 type HandlerConfig struct {
 	UserChatsUseCase  UserChatsUseCase
 	DeleteChatUseCase DeleteChatUseCase
 	AddMessageUseCase AddMessageUseCase
 	CanJoinUseCase    CanJoinUseCase
 	CreateChatUseCase CreateChatUseCase
+	ChatUsersUseCase  ChatUsersUseCase
 }
 
 type Handler struct {
@@ -46,8 +51,9 @@ type Handler struct {
 	addMessageUseCase AddMessageUseCase
 	canJoinUseCase    CanJoinUseCase
 	createChatUseCase CreateChatUseCase
-	chatConnections   map[uuid.UUID]map[uuid.UUID][]*websocket.Conn
-	mu                *sync.Mutex
+	chatUsersUseCase  ChatUsersUseCase
+	chatConnections   map[uuid.UUID]map[uuid.UUID]*websocket.Conn
+	connectMu         *sync.Mutex
 }
 
 type ErrorResponse struct {
@@ -61,8 +67,9 @@ func New(cfg HandlerConfig) *Handler {
 		addMessageUseCase: cfg.AddMessageUseCase,
 		canJoinUseCase:    cfg.CanJoinUseCase,
 		createChatUseCase: cfg.CreateChatUseCase,
-		chatConnections:   make(map[uuid.UUID]map[uuid.UUID][]*websocket.Conn),
-		mu:                &sync.Mutex{},
+		chatUsersUseCase:  cfg.ChatUsersUseCase,
+		chatConnections:   make(map[uuid.UUID]map[uuid.UUID]*websocket.Conn),
+		connectMu:         &sync.Mutex{},
 	}
 }
 
